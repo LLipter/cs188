@@ -91,9 +91,9 @@ def depthFirstSearch(problem):
     path = []
     closed_set = []
     sk = Stack()
-    start_pos = problem.getStartState()
-    sk.push([start_pos, None, None, None]) # Node [Position, Action, Cost?, PreviousNode]
-    closed_set.append(start_pos)
+    start_state = problem.getStartState()
+    sk.push([start_state, None, None, None]) # Node [State, Action, Cost?, PreviousNode]
+    closed_set.append(start_state)
     while not sk.isEmpty():
         node = sk.pop()
         if problem.isGoalState(node[0]):
@@ -113,9 +113,9 @@ def breadthFirstSearch(problem):
     path = []
     closed_set = []
     queue = Queue()
-    start_pos = problem.getStartState()
-    queue.push([start_pos, None, None, None]) # Node [Position, Action, Cost?, PreviousNode]
-    closed_set.append(start_pos)
+    start_state = problem.getStartState()
+    queue.push([start_state, None, None, None]) # Node [State, Action, Cost?, PreviousNode]
+    closed_set.append(start_state)
     while not queue.isEmpty():
         node = queue.pop()
         if problem.isGoalState(node[0]):
