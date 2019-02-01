@@ -125,49 +125,53 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     from util import Queue
-    path = []
     closed_set = []
     queue = Queue()
     start_state = problem.getStartState()
-    queue.push([start_state, None, 0, None])  # Node [State, Action, Cost, PreviousNode]
+    start_node = {'State': start_state,
+                  'Action': None,
+                  'Cost': 0,
+                  'PrevNode': None}
+    queue.push(start_node)
     while not queue.isEmpty():
         node = queue.pop()
-        if problem.isGoalState(node[0]):
-            while node[3] is not None:
-                path.append(node[1])
-                node = node[3]
-        if node[0] not in closed_set:
-            closed_set.append(node[0])
-            for successor in problem.getSuccessors(node[0]):
-                queue.push([*successor, node])
-    path.reverse()
-    print(path)
-    print(len(path))
+        if problem.isGoalState(node['State']):
+            return getPathFromNode(node)
+        if node['State'] not in closed_set:
+            closed_set.append(node['State'])
+            for successor in problem.getSuccessors(node['State']):
+                new_node = {'State': successor[0],
+                            'Action': successor[1],
+                            'Cost': successor[2],
+                            'PrevNode': node}
+                queue.push(new_node)
     return []
 
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     from util import PriorityQueue
-    path = []
     closed_set = []
     queue = PriorityQueue()
     start_state = problem.getStartState()
-    queue.push([start_state, None, 0, None], 0)  # Node [State, Action, Cost, PreviousNode]
+    start_node = {'State': start_state,
+                  'Action': None,
+                  'Cost': 0,
+                  'PrevNode': None}
+    queue.push(start_node, 0)
     while not queue.isEmpty():
         node = queue.pop()
-        if problem.isGoalState(node[0]):
-            while node[3] is not None:
-                path.append(node[1])
-                node = node[3]
-        if node[0] not in closed_set:
-            closed_set.append(node[0])
-            for successor in problem.getSuccessors(node[0]):
-                new_node = [*successor, node]
-                new_node[2] += node[2]
-                queue.push(new_node, new_node[2])
-    path.reverse()
-    return path
+        if problem.isGoalState(node['State']):
+            return getPathFromNode(node)
+        if node['State'] not in closed_set:
+            closed_set.append(node['State'])
+            for successor in problem.getSuccessors(node['State']):
+                new_node = {'State': successor[0],
+                            'Action': successor[1],
+                            'Cost': successor[2] + node['Cost'],
+                            'PrevNode': node}
+                queue.push(new_node, new_node['Cost'])
+    return []
 
 
 def nullHeuristic(state, problem=None):
@@ -181,27 +185,29 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     from util import PriorityQueue
-    path = []
     closed_set = []
     queue = PriorityQueue()
     start_state = problem.getStartState()
     start_heuristic = heuristic(start_state, problem)
-    queue.push([start_state, None, 0, None], 0 + start_heuristic)  # Node [State, Action, Cost, PreviousNode]
+    start_node = {'State': start_state,
+                  'Action': None,
+                  'Cost': 0,
+                  'PrevNode': None}
+    queue.push(start_node, 0 + start_heuristic)
     while not queue.isEmpty():
         node = queue.pop()
-        if problem.isGoalState(node[0]):
-            while node[3] is not None:
-                path.append(node[1])
-                node = node[3]
-        if node[0] not in closed_set:
-            closed_set.append(node[0])
-            for successor in problem.getSuccessors(node[0]):
-                h = heuristic(successor[0], problem)
-                new_node = [*successor, node]
-                new_node[2] += node[2]
-                queue.push(new_node, new_node[2] + h)
-    path.reverse()
-    return path
+        if problem.isGoalState(node['State']):
+            return getPathFromNode(node)
+        if node['State'] not in closed_set:
+            closed_set.append(node['State'])
+            for successor in problem.getSuccessors(node['State']):
+                new_node = {'State': successor[0],
+                            'Action': successor[1],
+                            'Cost': successor[2] + node['Cost'],
+                            'PrevNode': node}
+                new_heuristic = heuristic(successor[0], problem)
+                queue.push(new_node, new_node['Cost'] + new_heuristic)
+    return []
 
 
 # Abbreviations
