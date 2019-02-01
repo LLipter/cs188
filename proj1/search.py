@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -70,7 +71,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -92,7 +94,7 @@ def depthFirstSearch(problem):
     closed_set = []
     sk = Stack()
     start_state = problem.getStartState()
-    sk.push([start_state, None, None, None]) # Node [State, Action, Cost, PreviousNode]
+    sk.push([start_state, None, None, None])  # Node [State, Action, Cost, PreviousNode]
     closed_set.append(start_state)
     while not sk.isEmpty():
         node = sk.pop()
@@ -107,6 +109,7 @@ def depthFirstSearch(problem):
     path.reverse()
     return path
 
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     from util import Queue
@@ -114,7 +117,7 @@ def breadthFirstSearch(problem):
     closed_set = []
     queue = Queue()
     start_state = problem.getStartState()
-    queue.push([start_state, None, None, None]) # Node [State, Action, Cost, PreviousNode]
+    queue.push([start_state, None, 0, None])  # Node [State, Action, Cost, PreviousNode]
     closed_set.append(start_state)
     while not queue.isEmpty():
         node = queue.pop()
@@ -129,6 +132,7 @@ def breadthFirstSearch(problem):
     path.reverse()
     return path
 
+
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     from util import PriorityQueue
@@ -136,7 +140,7 @@ def uniformCostSearch(problem):
     closed_set = []
     queue = PriorityQueue()
     start_state = problem.getStartState()
-    queue.push([start_state, None, None, None], 0) # Node [State, Action, Cost, PreviousNode]
+    queue.push([start_state, None, 0, None], 0)  # Node [State, Action, Cost, PreviousNode]
     closed_set.append(start_state)
     while not queue.isEmpty():
         node = queue.pop()
@@ -147,9 +151,12 @@ def uniformCostSearch(problem):
         for successor in problem.getSuccessors(node[0]):
             if successor[0] not in closed_set:
                 closed_set.append(successor[0])
-                queue.push([*successor, node], successor[2])
+                new_node = [*successor, node]
+                new_node[2] += node[2]
+                queue.push(new_node, new_node[2])
     path.reverse()
     return path
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -158,10 +165,32 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+    path = []
+    closed_set = []
+    queue = PriorityQueue()
+    start_state = problem.getStartState()
+    start_heuristic = heuristic(start_state, problem)
+    queue.push([start_state, None, 0, None], 0 + start_heuristic)  # Node [State, Action, Cost, PreviousNode]
+    closed_set.append(start_state)
+    while not queue.isEmpty():
+        node = queue.pop()
+        if problem.isGoalState(node[0]):
+            while node[3] is not None:
+                path.append(node[1])
+                node = node[3]
+        for successor in problem.getSuccessors(node[0]):
+            if successor[0] not in closed_set:
+                closed_set.append(successor[0])
+                h = heuristic(successor[0], problem)
+                new_node = [*successor, node]
+                new_node[2] += node[2]
+                queue.push(new_node, new_node[2] + h)
+    path.reverse()
+    return path
 
 
 # Abbreviations
