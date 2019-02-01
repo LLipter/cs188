@@ -74,6 +74,15 @@ def tinyMazeSearch(problem):
     return [s, s, w, s, w, w, s, w]
 
 
+def getPathFromNode(node):
+    path = []
+    while node['PrevNode'] is not None:
+        path.append(node['Action'])
+        node = node['PrevNode']
+    path.reverse()
+    return path
+
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -90,23 +99,27 @@ def depthFirstSearch(problem):
     """
 
     from util import Stack
-    path = []
     closed_set = []
     sk = Stack()
     start_state = problem.getStartState()
-    sk.push([start_state, None, 0, None])  # Node [State, Action, Cost, PreviousNode]
+    start_node = {'State': start_state,
+                  'Action': None,
+                  'Cost': 0,
+                  'PrevNode': None}
+    sk.push(start_node)
     while not sk.isEmpty():
         node = sk.pop()
-        if problem.isGoalState(node[0]):
-            while node[3] is not None:
-                path.append(node[1])
-                node = node[3]
-        if node[0] not in closed_set:
-            closed_set.append(node[0])
-            for successor in problem.getSuccessors(node[0]):
-                sk.push([*successor, node])
-    path.reverse()
-    return path
+        if problem.isGoalState(node['State']):
+            return getPathFromNode(node)
+        if node['State'] not in closed_set:
+            closed_set.append(node['State'])
+            for successor in problem.getSuccessors(node['State']):
+                new_node = {'State': successor[0],
+                            'Action': successor[1],
+                            'Cost': successor[2],
+                            'PrevNode': node}
+                sk.push(new_node)
+    return []
 
 
 def breadthFirstSearch(problem):
@@ -128,7 +141,9 @@ def breadthFirstSearch(problem):
             for successor in problem.getSuccessors(node[0]):
                 queue.push([*successor, node])
     path.reverse()
-    return path
+    print(path)
+    print(len(path))
+    return []
 
 
 def uniformCostSearch(problem):

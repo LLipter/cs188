@@ -294,15 +294,17 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # left-bottom left-top right-top right-bottom
+        return [self.startingPosition, [False, False, False, False]]
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for flag in state[1]:
+            if not flag:
+                return False
+        return True
 
     def getSuccessors(self, state):
         """
@@ -324,7 +326,18 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
+            x, y = state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                new_pos = (nextx, nexty)
+                new_conor_flag = state[1][:]
+                for i,corner in enumerate(self.corners):
+                    if new_pos == corner:
+                        new_conor_flag[i] = True
+                new_state = [new_pos, new_conor_flag]
+                successors.append([new_state, action, 1])
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -359,8 +372,13 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    min_m_distance = 0
+    x, y = state[0]
+    for i, flag in enumerate(state[1]):
+        if not flag:
+            distance = abs(x - corners[i][0]) + abs(y - corners[i][1])
+            min_m_distance = min(min_m_distance, distance)
+    return min_m_distance
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
