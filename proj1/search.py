@@ -92,7 +92,7 @@ def depthFirstSearch(problem):
     closed_set = []
     sk = Stack()
     start_state = problem.getStartState()
-    sk.push([start_state, None, None, None]) # Node [State, Action, Cost?, PreviousNode]
+    sk.push([start_state, None, None, None]) # Node [State, Action, Cost, PreviousNode]
     closed_set.append(start_state)
     while not sk.isEmpty():
         node = sk.pop()
@@ -114,7 +114,7 @@ def breadthFirstSearch(problem):
     closed_set = []
     queue = Queue()
     start_state = problem.getStartState()
-    queue.push([start_state, None, None, None]) # Node [State, Action, Cost?, PreviousNode]
+    queue.push([start_state, None, None, None]) # Node [State, Action, Cost, PreviousNode]
     closed_set.append(start_state)
     while not queue.isEmpty():
         node = queue.pop()
@@ -131,8 +131,25 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+    path = []
+    closed_set = []
+    queue = PriorityQueue()
+    start_state = problem.getStartState()
+    queue.push([start_state, None, None, None], 0) # Node [State, Action, Cost, PreviousNode]
+    closed_set.append(start_state)
+    while not queue.isEmpty():
+        node = queue.pop()
+        if problem.isGoalState(node[0]):
+            while node[3] is not None:
+                path.append(node[1])
+                node = node[3]
+        for successor in problem.getSuccessors(node[0]):
+            if successor[0] not in closed_set:
+                closed_set.append(successor[0])
+                queue.push([*successor, node], successor[2])
+    path.reverse()
+    return path
 
 def nullHeuristic(state, problem=None):
     """
