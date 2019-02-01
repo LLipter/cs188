@@ -88,10 +88,24 @@ def depthFirstSearch(problem):
     """
 
     from util import Stack
+    path = []
+    closed_set = []
     sk = Stack()
-    sk.push(problem.getStartState())
-
-    return []
+    start_pos = problem.getStartState()
+    sk.push([start_pos, None, None, None]) # Node [Position, Action, Cost?, PreviousNode]
+    closed_set.append(start_pos)
+    while not sk.isEmpty():
+        node = sk.pop()
+        if problem.isGoalState(node[0]):
+            while node[3] is not None:
+                path.append(node[1])
+                node = node[3]
+        for successor in problem.getSuccessors(node[0]):
+            if successor[0] not in closed_set:
+                closed_set.append(successor[0])
+                sk.push([*successor, node])
+    path.reverse()
+    return path
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
