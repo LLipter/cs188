@@ -468,6 +468,21 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchType = FoodSearchProblem
 
 
+def getFFDistances(foods):
+    distances = [0]
+    for food1 in foods:
+        for food2 in foods:
+            distance = abs(food1[0] - food2[0]) + abs(food1[1] - food2[1])
+            distances.append(distance)
+    distances = list(set(distances))
+    distances.sort()
+    return distances
+
+
+def getMaxFFDistance(foods):
+    return getFFDistances(foods)[-1]
+
+
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -499,22 +514,69 @@ def foodHeuristic(state, problem):
     position, foodGrid = state
     x, y = position
 
-    # UCS
+    # 1 UCS
     # expanded nodes : 16688
     # cost : 60
     # time : 22.1s
     ########################
     # heuristic = 0
 
-    # Max Manhattan Distance
+    # 2 Max Manhattan Distance
     # expanded nodes : 9551
     # cost : 60
     # time : 7.1s
     ########################
-    heuristic = 0
+    # heuristic = 0
+    # for food in foodGrid.asList():
+    #     distance = abs(x - food[0]) + abs(y - food[1])
+    #     heuristic = max(heuristic, distance)
+
+    # 3 Average Manhattan Distance
+    # expanded nodes : 11254
+    # cost : 60
+    # time : 11.9s
+    ########################
+    # heuristic = 0
+    # for food in foodGrid.asList():
+    #     distance = abs(x - food[0]) + abs(y - food[1])
+    #     heuristic += distance
+    # if len(foodGrid.asList()) != 0:
+    #     heuristic /= len(foodGrid.asList())
+
+    # 4 Relative Max Distance between Foods
+    # expanded nodes : 16463
+    # cost : 60
+    # time : 21.3s
+    ########################
+    # if "MaxFFDistance" not in problem.heuristicInfo.keys():
+    #     problem.heuristicInfo["MaxFFDistance"] = getMaxFFDistance(foodGrid.asList())
+    # currentMaxDistance = getMaxFFDistance(foodGrid.asList())
+    # heuristic = currentMaxDistance / problem.heuristicInfo["MaxFFDistance"]
+
+    # 5 Rank Max Distance between Foods
+    # expanded nodes : 12322
+    # cost : 68
+    # THIS IS INCONSISTENT
+    ########################
+    # if "DistanceRank" not in problem.heuristicInfo.keys():
+    #     problem.heuristicInfo["DistanceRank"] = getFFDistances(foodGrid.asList())
+    # currentMaxDistance = getMaxFFDistance(foodGrid.asList())
+    # heuristic = problem.heuristicInfo["DistanceRank"].index(currentMaxDistance)
+
+    # Mix of 2 and 4
+    # expanded nodes : 11964
+    # cost : 60
+    # time : 12.8s
+    ########################
+    heuristic1 = 0
     for food in foodGrid.asList():
         distance = abs(x - food[0]) + abs(y - food[1])
-        heuristic = max(heuristic, distance)
+        heuristic1 = max(heuristic1, distance)
+    if "MaxFFDistance" not in problem.heuristicInfo.keys():
+        problem.heuristicInfo["MaxFFDistance"] = getMaxFFDistance(foodGrid.asList())
+    currentMaxDistance = getMaxFFDistance(foodGrid.asList())
+    heuristic2 = currentMaxDistance / problem.heuristicInfo["MaxFFDistance"]
+    heuristic = (heuristic1 + heuristic2) / 2
 
     return heuristic
 
@@ -586,7 +648,6 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         x, y = state
         return self.food[x][y]
-
 
 
 def mazeDistance(point1, point2, gameState):
