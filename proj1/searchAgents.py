@@ -387,20 +387,11 @@ def cornersHeuristic(state, problem):
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
     x, y = state["Pos"]
 
-    # Min Manhattan Distance
-    # expanded nodes : 2838
-    # cost : 106
-    # time : 0.7
-    # heuristic = 99999999999
-    # for i, is_visited in enumerate(state["CornerFlag"]):
-    #     if not is_visited:
-    #         distance = abs(x - corners[i][0]) + abs(y - corners[i][1])
-    #         heuristic = min(heuristic, distance)
-
     # Max Manhattan Distance
     # expanded nodes : 1136
     # cost : 106
     # time : 0.1
+    ########################
     heuristic = 0
     for i, is_visited in enumerate(state["CornerFlag"]):
         if not is_visited:
@@ -506,30 +497,21 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    heuristic = 0
     x, y = position
 
-    # Min Manhattan Distance
+    # UCS
     # expanded nodes : 16688
     # cost : 60
     # time : 22.1s
-    # for food in foodGrid.asList():
-    #     distance = abs(x - food[0]) + abs(y - food[1])
-    #     heuristic = min(heuristic, distance)
+    ########################
+    # heuristic = 0
 
     # Max Manhattan Distance
     # expanded nodes : 9551
     # cost : 60
     # time : 7.1s
-    for food in foodGrid.asList():
-        distance = abs(x - food[0]) + abs(y - food[1])
-        heuristic = max(heuristic, distance)
-
-    # Min-Max Average Manhattan Distance
-    # min_dist =
-    for food in foodGrid.asList():
-        distance = abs(x - food[0]) + abs(y - food[1])
-        heuristic = min(heuristic, distance)
+    ########################
+    heuristic = 0
     for food in foodGrid.asList():
         distance = abs(x - food[0]) + abs(y - food[1])
         heuristic = max(heuristic, distance)
