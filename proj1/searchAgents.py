@@ -540,16 +540,16 @@ def foodHeuristic(state, problem):
         heuristic = getManhattanDistance(position, food)
     else:
         max_distance = 0
-        pachman_distance1 = 0
-        pachman_distance2 = 0
+        pacman_distance1 = 0
+        pacman_distance2 = 0
         for food1 in foodGrid.asList():
             for food2 in foodGrid.asList():
                 distance = getManhattanDistance(food1, food2)
                 if distance > max_distance:
                     max_distance = distance
-                    pachman_distance1 = getManhattanDistance(position, food1)
-                    pachman_distance2 = getManhattanDistance(position, food2)
-        heuristic = max_distance + min(pachman_distance1, pachman_distance2)
+                    pacman_distance1 = getManhattanDistance(position, food1)
+                    pacman_distance2 = getManhattanDistance(position, food2)
+        heuristic = max_distance + min(pacman_distance1, pacman_distance2)
 
     return heuristic
 
