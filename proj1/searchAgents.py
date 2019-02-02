@@ -468,19 +468,8 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchType = FoodSearchProblem
 
 
-def getFFDistances(foods):
-    distances = [0]
-    for food1 in foods:
-        for food2 in foods:
-            distance = abs(food1[0] - food2[0]) + abs(food1[1] - food2[1])
-            distances.append(distance)
-    distances = list(set(distances))
-    distances.sort()
-    return distances
-
-
-def getMaxFFDistance(foods):
-    return getFFDistances(foods)[-1]
+def getManhattanDistance(pos1, pos2):
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 
 def foodHeuristic(state, problem):
@@ -528,8 +517,7 @@ def foodHeuristic(state, problem):
     ########################
     # heuristic = 0
     # for food in foodGrid.asList():
-    #     distance = abs(x - food[0]) + abs(y - food[1])
-    #     heuristic = max(heuristic, distance)
+    #     heuristic = max(heuristic, getManhattanDistance(position, food))
 
     # 3 Average Manhattan Distance
     # expanded nodes : 11254
@@ -538,45 +526,30 @@ def foodHeuristic(state, problem):
     ########################
     # heuristic = 0
     # for food in foodGrid.asList():
-    #     distance = abs(x - food[0]) + abs(y - food[1])
-    #     heuristic += distance
+    #     heuristic += getManhattanDistance(position, food)
     # if len(foodGrid.asList()) != 0:
     #     heuristic /= len(foodGrid.asList())
 
-    # 4 Relative Max Distance between Foods
-    # expanded nodes : 16463
-    # cost : 60
-    # time : 21.3s
-    ########################
-    # if "MaxFFDistance" not in problem.heuristicInfo.keys():
-    #     problem.heuristicInfo["MaxFFDistance"] = getMaxFFDistance(foodGrid.asList())
-    # currentMaxDistance = getMaxFFDistance(foodGrid.asList())
-    # heuristic = currentMaxDistance / problem.heuristicInfo["MaxFFDistance"]
-
-    # 5 Rank Max Distance between Foods
-    # expanded nodes : 12322
-    # cost : 68
-    # THIS IS INCONSISTENT
-    ########################
-    # if "DistanceRank" not in problem.heuristicInfo.keys():
-    #     problem.heuristicInfo["DistanceRank"] = getFFDistances(foodGrid.asList())
-    # currentMaxDistance = getMaxFFDistance(foodGrid.asList())
-    # heuristic = problem.heuristicInfo["DistanceRank"].index(currentMaxDistance)
-
-    # Mix of 2 and 4
-    # expanded nodes : 11964
+    # 4 Max Food-Food Distance plus Min Pacman-Food Distance
+    # expanded nodes : 7553
     # cost : 60
     # time : 12.8s
     ########################
-    heuristic1 = 0
-    for food in foodGrid.asList():
-        distance = abs(x - food[0]) + abs(y - food[1])
-        heuristic1 = max(heuristic1, distance)
-    if "MaxFFDistance" not in problem.heuristicInfo.keys():
-        problem.heuristicInfo["MaxFFDistance"] = getMaxFFDistance(foodGrid.asList())
-    currentMaxDistance = getMaxFFDistance(foodGrid.asList())
-    heuristic2 = currentMaxDistance / problem.heuristicInfo["MaxFFDistance"]
-    heuristic = (heuristic1 + heuristic2) / 2
+    if len(foodGrid.asList()) == 1:
+        food = foodGrid.asList()[0]
+        heuristic = getManhattanDistance(position, food)
+    else:
+        max_distance = 0
+        pachman_distance1 = 0
+        pachman_distance2 = 0
+        for food1 in foodGrid.asList():
+            for food2 in foodGrid.asList():
+                distance = getManhattanDistance(food1, food2)
+                if distance > max_distance:
+                    max_distance = distance
+                    pachman_distance1 = getManhattanDistance(position, food1)
+                    pachman_distance2 = getManhattanDistance(position, food2)
+        heuristic = max_distance + min(pachman_distance1, pachman_distance2)
 
     return heuristic
 
