@@ -23,8 +23,11 @@ IMPORTANT
 `agent` defines which agent you will use. By default, it is set to ClosestDotAgent,
 but when you're ready to test your own agent, replace it with MyAgent
 """
+
+
 def createAgents(num_pacmen, agent='ClosestDotAgent'):
     return [eval(agent)(index=i) for i in range(num_pacmen)]
+
 
 class MyAgent(Agent):
     """
@@ -51,10 +54,12 @@ class MyAgent(Agent):
 
         raise NotImplementedError()
 
+
 """
 Put any other SearchProblems or search methods below. You may also import classes/methods in
 search.py and searchProblems.py. (ClosestDotAgent as an example below)
 """
+
 
 class ClosestDotAgent(Agent):
 
@@ -69,12 +74,13 @@ class ClosestDotAgent(Agent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState, self.index)
 
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        from search import breadthFirstSearch
+        anyFoodSearchProblem = AnyFoodSearchProblem(gameState)
+        return breadthFirstSearch(anyFoodSearchProblem)
 
     def getAction(self, state):
         return self.findPathToClosestDot(state)[0]
+
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -100,15 +106,12 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         self.walls = gameState.getWalls()
         self.startState = gameState.getPacmanPosition(agentIndex)
         self.costFn = lambda x: 1
-        self._visited, self._visitedlist, self._expanded = {}, [], 0 # DO NOT CHANGE
+        self._visited, self._visitedlist, self._expanded = {}, [], 0  # DO NOT CHANGE
 
     def isGoalState(self, state):
         """
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
         """
-        x,y = state
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        x, y = state
+        return self.food[x][y]
