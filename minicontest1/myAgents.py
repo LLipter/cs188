@@ -75,7 +75,7 @@ class ClosestDotAgent(Agent):
         problem = AnyFoodSearchProblem(gameState, self.index)
 
         from search import breadthFirstSearch
-        anyFoodSearchProblem = AnyFoodSearchProblem(gameState)
+        anyFoodSearchProblem = AnyFoodSearchProblem(gameState, self.index)
         return breadthFirstSearch(anyFoodSearchProblem)
 
     def getAction(self, state):
