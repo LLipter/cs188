@@ -535,21 +535,30 @@ def foodHeuristic(state, problem):
     # cost : 60
     # time : 12.8s
     ########################
-    if len(foodGrid.asList()) == 1:
-        food = foodGrid.asList()[0]
-        heuristic = getManhattanDistance(position, food)
-    else:
-        max_distance = 0
-        pacman_distance1 = 0
-        pacman_distance2 = 0
-        for food1 in foodGrid.asList():
-            for food2 in foodGrid.asList():
-                distance = getManhattanDistance(food1, food2)
-                if distance > max_distance:
-                    max_distance = distance
-                    pacman_distance1 = getManhattanDistance(position, food1)
-                    pacman_distance2 = getManhattanDistance(position, food2)
-        heuristic = max_distance + min(pacman_distance1, pacman_distance2)
+    # if len(foodGrid.asList()) == 1:
+    #     food = foodGrid.asList()[0]
+    #     heuristic = getManhattanDistance(position, food)
+    # else:
+    #     max_distance = 0
+    #     pacman_distance1 = 0
+    #     pacman_distance2 = 0
+    #     for food1 in foodGrid.asList():
+    #         for food2 in foodGrid.asList():
+    #             distance = getManhattanDistance(food1, food2)
+    #             if distance > max_distance:
+    #                 max_distance = distance
+    #                 pacman_distance1 = getManhattanDistance(position, food1)
+    #                 pacman_distance2 = getManhattanDistance(position, food2)
+    #     heuristic = max_distance + min(pacman_distance1, pacman_distance2)
+
+    # 5 Max Maze distance
+    # expanded nodes : 4137
+    # cost : 60
+    # time : 42.6
+    ########################
+    heuristic = 0
+    for food in foodGrid.asList():
+        heuristic = max(heuristic, mazeDistance(position, food, problem.startingGameState))
 
     return heuristic
 
