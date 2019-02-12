@@ -291,7 +291,18 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    foods = currentGameState.getFood()
+    pos = currentGameState.getPacmanPosition()
+
+    # 1 reciprocal of distance to closest food
+    distance = float('inf')
+    for food in foods.asList():
+        distance = min(distance, getManhattanDistance(pos, food))
+    score = 1 / distance + currentGameState.getScore()
+
+
+    return score
 
 
 # Abbreviation
