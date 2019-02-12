@@ -89,7 +89,6 @@ class ReflexAgent(Agent):
         return score
 
 
-
 def scoreEvaluationFunction(currentGameState):
     """
     This default evaluation function just returns the score of the state.
@@ -151,7 +150,39 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # print(self.depth)
+        _, action = self.getMaxNodeScore(gameState, 1)
+
+        return action
+
+    def getMaxNodeScore(self, gameState, depth):
+        max_score = float('-inf')
+        max_action = Directions.STOP
+        for action in gameState.getLegalActions(0):
+            successor = gameState.generateSuccessor(0, action)
+            score = self.getMinNodeScore(successor, 1, depth)
+            if score > max_score:
+                max_score = score
+                max_action = action
+        if gameState.isLose() or gameState.isWin():
+            max_score = self.evaluationFunction(gameState)
+        return max_score, max_action
+
+    def getMinNodeScore(self, gameState, index, depth):
+        min_score = float('inf')
+        for action in gameState.getLegalActions(index):
+            successor = gameState.generateSuccessor(index, action)
+            if index < gameState.getNumAgents() - 1:
+                score = self.getMinNodeScore(successor, index + 1, depth)
+            elif depth < self.depth:
+                score, _ = self.getMaxNodeScore(successor, depth + 1)
+            else:
+                score = self.evaluationFunction(successor)
+            if score < min_score:
+                min_score = score
+        if gameState.isLose() or gameState.isWin():
+            min_score = self.evaluationFunction(gameState)
+        return min_score
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
