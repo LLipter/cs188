@@ -184,3 +184,43 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+
+        predecessor = {}
+        for state in self.mdp.getStates():
+            predecessor[state] = []
+        for state in self.mdp.getStates():
+            for action in self.mdp.getPossibleActions(state):
+                for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
+                    if prob > 0:
+                        predecessor[nextState].append(state)
+        for state in self.mdp.getStates():
+            predecessor[state] = set(predecessor[state])
+
+        queue = util.PriorityQueue()
+
+        for state in self.mdp.getStates():
+            if self.mdp.isTerminal(state):
+                continue
+            value = float('-inf')
+            for action in self.mdp.getPossibleActions(state):
+                value = max(value, self.computeQValueFromValues(state, action))
+            diff = abs(self.values[state] - value)
+            queue.push(state, -diff)
+
+        for i in range(self.iterations):
+            if queue.isEmpty():
+                return
+            state = queue.pop()
+
+            value = float('-inf')
+            for action in self.mdp.getPossibleActions(state):
+                value = max(value, self.computeQValueFromValues(state, action))
+            self.values[state] = value
+
+            for prevState in predecessor[state]:
+                value = float('-inf')
+                for action in self.mdp.getPossibleActions(prevState):
+                    value = max(value, self.computeQValueFromValues(prevState, action))
+                diff = abs(self.values[prevState] - value)
+                if diff > self.theta:
+                    queue.update(prevState, -diff)
