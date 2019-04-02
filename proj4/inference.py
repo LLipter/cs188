@@ -122,7 +122,6 @@ class DiscreteDistribution(dict):
         return keys[index]
 
 
-
 class InferenceModule:
     """
     An inference module tracks a belief distribution over a ghost's location.
@@ -191,7 +190,22 @@ class InferenceModule:
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # print("ghostPosition", ghostPosition)
+        # print("jailPosition", jailPosition)
+        # print("pacmanPosition", pacmanPosition)
+        if noisyDistance == None:
+            if ghostPosition == jailPosition:
+                return 1
+            else:
+                return 0
+        else:
+            if ghostPosition == jailPosition:
+                return 0
+            else:
+                trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
+                # print("trueDistance", trueDistance)
+                # print("noisyDistance", noisyDistance)
+                return busters.getObservationProbability(noisyDistance, trueDistance)
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
