@@ -382,7 +382,19 @@ class ParticleFilter(InferenceModule):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        distribution = DiscreteDistribution()
+        for particles in self.particles:
+            distribution[particles] += self.getObservationProb(observation,
+                                                               gameState.getPacmanPosition(),
+                                                               particles,
+                                                               self.getJailPosition())
+        distribution.normalize()
+        if distribution.total() == 0:
+            self.initializeUniformly(gameState)
+        else:
+            self.particles = []
+            for _ in range(self.numParticles):
+                self.particles.append(distribution.sample())
 
     def elapseTime(self, gameState):
         """
@@ -397,7 +409,7 @@ class ParticleFilter(InferenceModule):
         Return the agent's current belief state, a distribution over ghost
         locations conditioned on all evidence and time passage. This method
         essentially converts a list of particles into a belief distribution.
-        
+
         This function should return a normalized distribution.
         """
         "*** YOUR CODE HERE ***"
@@ -406,6 +418,7 @@ class ParticleFilter(InferenceModule):
             distribution[particles] += 1
         distribution.normalize()
         return distribution
+
 
 class JointParticleFilter(ParticleFilter):
     """
