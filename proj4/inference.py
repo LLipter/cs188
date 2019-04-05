@@ -385,9 +385,9 @@ class ParticleFilter(InferenceModule):
         distribution = DiscreteDistribution()
         for particle in self.particles:
             distribution[particle] += self.getObservationProb(observation,
-                                                               gameState.getPacmanPosition(),
-                                                               particle,
-                                                               self.getJailPosition())
+                                                              gameState.getPacmanPosition(),
+                                                              particle,
+                                                              self.getJailPosition())
         distribution.normalize()
         if distribution.total() == 0:
             self.initializeUniformly(gameState)
@@ -407,7 +407,6 @@ class ParticleFilter(InferenceModule):
             newPosDist = self.getPositionDistribution(gameState, particle)
             newParticles.append(newPosDist.sample())
         self.particles = newParticles
-
 
     def getBeliefDistribution(self):
         """
@@ -451,7 +450,16 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        from itertools import product
+        ghostPositions = [self.legalPositions for _ in range(self.numGhosts)]
+        particles = product(*ghostPositions)
+        i = 0
+        for particle in particles:
+            if i < self.numParticles:
+                i += 1
+                self.particles.append(particle)
+            else:
+                break
 
     def addGhostAgent(self, agent):
         """
