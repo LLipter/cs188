@@ -158,13 +158,13 @@ class GreedyBustersAgent(BustersAgent):
              if livingGhosts[i + 1]]
         "*** YOUR CODE HERE ***"
         ghostPos = None
-        ghostProb = 0
+        ghostDistance = float('inf')
         for ghostDistribution in livingGhostPositionDistributions:
             pos = ghostDistribution.argMax()
-            prob = ghostDistribution[pos]
-            if prob > ghostProb:
+            distance = self.distancer.getDistance(pos, pacmanPosition)
+            if distance < ghostDistance:
                 ghostPos = pos
-                ghostProb = prob
+                ghostDistance = distance
         distance = float('inf')
         action = None
         for a in legal:
