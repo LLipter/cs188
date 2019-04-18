@@ -1,5 +1,6 @@
 import nn
 
+
 class PerceptronModel(object):
     def __init__(self, dimensions):
         """
@@ -58,15 +59,25 @@ class PerceptronModel(object):
                     self.w.update(x, y)
                     done = False
 
+
 class RegressionModel(object):
     """
     A neural network model for approximating a function that maps from real
     numbers to real numbers. The network should be sufficiently large to be able
     to approximate sin(x) on the interval [-2pi, 2pi] to reasonable precision.
     """
+
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.w1 = nn.Parameter(1, 10)
+        self.b1 = nn.Parameter(1, 10)
+        self.w2 = nn.Parameter(10, 10)
+        self.b2 = nn.Parameter(1, 10)
+        self.w3 = nn.Parameter(10, 1)
+        self.b3 = nn.Parameter(1, 1)
+        self.batch_size = 100
+        self.lr = 0.003
 
     def run(self, x):
         """
@@ -78,6 +89,10 @@ class RegressionModel(object):
             A node with shape (batch_size x 1) containing predicted y-values
         """
         "*** YOUR CODE HERE ***"
+        h1 = nn.ReLU(nn.AddBias(nn.Linear(x, self.w1), self.b1))
+        h2 = nn.ReLU(nn.AddBias(nn.Linear(h1, self.w2), self.b2))
+        y_pred = nn.AddBias(nn.Linear(h2, self.w3), self.b3)
+        return y_pred
 
     def get_loss(self, x, y):
         """
@@ -90,12 +105,52 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        y_pred = self.run(x)
+        loss = nn.SquareLoss(y, y_pred)
+        return loss
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        lost_length = 10
+        lost_window = []
+        loss_sum = 0
+        cnt = 0
+        print_interval = 50
+        for x, y in dataset.iterate_forever(self.batch_size):
+            cnt += 1
+            loss = self.get_loss(x, y)
+            loss_scalar = nn.as_scalar(loss)
+            if len(lost_window) < lost_length:
+                lost_window.append(loss_scalar)
+                loss_sum += loss_scalar
+            else:
+                loss_sum -= lost_window[0]
+                loss_sum += loss_scalar
+                lost_window = lost_window[1:]
+                lost_window.append(loss_scalar)
+                average_loss = loss_sum / lost_length
+                if cnt % print_interval == 0:
+                    print("average_loss:", average_loss)
+                # print("lost_window:", lost_window)
+                if average_loss <= 0.015:
+                    break
+            grad_wrt_w1, grad_wrt_w2, grad_wrt_w3, grad_wrt_b1, grad_wrt_b2, grad_wrt_b3 = nn.gradients(loss,
+                                                                                                        [self.w1,
+                                                                                                         self.w2,
+                                                                                                         self.w3,
+                                                                                                         self.b1,
+                                                                                                         self.b2,
+                                                                                                         self.b3])
+            self.w1.update(grad_wrt_w1, - self.lr)
+            self.w2.update(grad_wrt_w2, - self.lr)
+            self.w3.update(grad_wrt_w3, - self.lr)
+            self.b1.update(grad_wrt_b1, - self.lr)
+            self.b2.update(grad_wrt_b2, - self.lr)
+            self.b3.update(grad_wrt_b3, - self.lr)
+
 
 class DigitClassificationModel(object):
     """
@@ -111,6 +166,7 @@ class DigitClassificationModel(object):
     methods here. We recommend that you implement the RegressionModel before
     working on this part of the project.)
     """
+
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
@@ -152,6 +208,7 @@ class DigitClassificationModel(object):
         """
         "*** YOUR CODE HERE ***"
 
+
 class LanguageIDModel(object):
     """
     A model for language identification at a single-word granularity.
@@ -160,6 +217,7 @@ class LanguageIDModel(object):
     methods here. We recommend that you implement the RegressionModel before
     working on this part of the project.)
     """
+
     def __init__(self):
         # Our dataset contains words from five different languages, and the
         # combined alphabets of the five languages contain a total of 47 unique
