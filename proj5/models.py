@@ -169,14 +169,12 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
-        self.w1 = nn.Parameter(784, 100)
-        self.b1 = nn.Parameter(1, 100)
-        self.w2 = nn.Parameter(100, 100)
-        self.b2 = nn.Parameter(1, 100)
-        self.w3 = nn.Parameter(100, 10)
-        self.b3 = nn.Parameter(1, 10)
-        self.batch_size = 100
-        self.lr = 0.005
+        self.w1 = nn.Parameter(784, 500)
+        self.b1 = nn.Parameter(1, 500)
+        self.w2 = nn.Parameter(500, 10)
+        self.b2 = nn.Parameter(1, 10)
+        self.batch_size = 25
+        self.lr = 0.2
 
     def run(self, x):
         """
@@ -193,9 +191,8 @@ class DigitClassificationModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
-        h1 = nn.ReLU(nn.AddBias(nn.Linear(x, self.w1), self.b1))
-        h2 = nn.ReLU(nn.AddBias(nn.Linear(h1, self.w2), self.b2))
-        y_pred = nn.AddBias(nn.Linear(h2, self.w3), self.b3)
+        h = nn.ReLU(nn.AddBias(nn.Linear(x, self.w1), self.b1))
+        y_pred = nn.AddBias(nn.Linear(h, self.w2), self.b2)
         return y_pred
 
     def get_loss(self, x, y):
@@ -224,19 +221,15 @@ class DigitClassificationModel(object):
         while True:
             for x, y in dataset.iterate_once(self.batch_size):
                 loss = self.get_loss(x, y)
-                grad_wrt_w1, grad_wrt_w2, grad_wrt_w3, grad_wrt_b1, grad_wrt_b2, grad_wrt_b3 = nn.gradients(loss,
-                                                                                                            [self.w1,
-                                                                                                             self.w2,
-                                                                                                             self.w3,
-                                                                                                             self.b1,
-                                                                                                             self.b2,
-                                                                                                             self.b3])
+                grad_wrt_w1, grad_wrt_w2, grad_wrt_b1, grad_wrt_b2 = nn.gradients(loss,
+                                                                                  [self.w1,
+                                                                                   self.w2,
+                                                                                   self.b1,
+                                                                                   self.b2])
                 self.w1.update(grad_wrt_w1, - self.lr)
                 self.w2.update(grad_wrt_w2, - self.lr)
-                self.w3.update(grad_wrt_w3, - self.lr)
                 self.b1.update(grad_wrt_b1, - self.lr)
                 self.b2.update(grad_wrt_b2, - self.lr)
-                self.b3.update(grad_wrt_b3, - self.lr)
             acc = dataset.get_validation_accuracy()
             print("acc:", acc)
             if acc >= 0.98:
