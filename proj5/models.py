@@ -232,7 +232,7 @@ class DigitClassificationModel(object):
                 self.b2.update(grad_wrt_b2, - self.lr)
             acc = dataset.get_validation_accuracy()
             print("acc:", acc)
-            if acc >= 0.98:
+            if acc >= 0.975:
                 break
 
 
@@ -255,6 +255,16 @@ class LanguageIDModel(object):
 
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.w = nn.Parameter(self.num_chars, 500)
+        self.w_h = nn.Parameter(500, 500)
+        self.b = nn.Parameter(1, 500)
+
+        self.w1 = nn.Parameter(500, 100)
+        self.b1 = nn.Parameter(1, 100)
+        self.w2 = nn.Parameter(100, 5)
+        self.b2 = nn.Parameter(1, 5)
+        self.batch_size = 50
+        self.lr = 0.03
 
     def run(self, xs):
         """
@@ -286,6 +296,15 @@ class LanguageIDModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+        z = nn.ReLU(nn.AddBias(nn.Linear(xs[0], self.w), self.b))
+        for i, x in enumerate(xs):
+            if i != 0:
+                h = nn.Add(nn.Linear(z, self.w_h), nn.Linear(x, self.w))
+                z = nn.ReLU(nn.AddBias(h, self.b))
+
+        h = nn.ReLU(nn.AddBias(nn.Linear(z, self.w1), self.b1))
+        y_pred = nn.AddBias(nn.Linear(h, self.w2), self.b2)
+        return y_pred
 
     def get_loss(self, xs, y):
         """
@@ -302,9 +321,34 @@ class LanguageIDModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        y_pred = self.run(xs)
+        loss = nn.SoftmaxLoss(y_pred, y)
+        return loss
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        while True:
+            for x, y in dataset.iterate_once(self.batch_size):
+                loss = self.get_loss(x, y)
+                grad_wrt_w, grad_wrt_wh, grad_wrt_b, grad_wrt_w1, grad_wrt_w2, grad_wrt_b1, grad_wrt_b2 = nn.gradients(
+                    loss,
+                    [self.w,
+                     self.w_h,
+                     self.b,
+                     self.w1,
+                     self.w2,
+                     self.b1,
+                     self.b2])
+                self.w.update(grad_wrt_w, - self.lr)
+                self.w_h.update(grad_wrt_wh, - self.lr)
+                self.b.update(grad_wrt_b, - self.lr)
+                self.w1.update(grad_wrt_w1, - self.lr)
+                self.w2.update(grad_wrt_w2, - self.lr)
+                self.b1.update(grad_wrt_b1, - self.lr)
+                self.b2.update(grad_wrt_b2, - self.lr)
+            acc = dataset.get_validation_accuracy()
+            if acc >= 0.85:
+                break
